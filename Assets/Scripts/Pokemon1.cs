@@ -1,18 +1,14 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Pokemon1 : MonoBehaviour
 {
-    [Header("Attached GameObjects/Components")]
-
-    [SerializeField] SpriteRenderer renderer;
-
     [Header("Pokemon 1 Info")]
 
     [SerializeField] public string Pokemon1Name = "BunBun";
     [SerializeField] public string Pokemon1Type = "Grass";
-    [SerializeField] Sprite p1_sprite;
     
 
     [Header("Pokemon 1 Stats")]
@@ -38,17 +34,4 @@ public class Pokemon1 : MonoBehaviour
     [SerializeField] public float Atk2Pwr = 40;
 
 
-    void Update()
-    {
-
-    }
-
-    public void Attack1()
-    {
-
-    }
-    public void Attack2()
-    {
-
-    }
 }

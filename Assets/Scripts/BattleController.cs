@@ -1,58 +1,68 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class BattleController : MonoBehaviour
 {
     [Header("Connected GameObjects/Components")]
 
+    //GameObjects
     [SerializeField] GameObject Poke1;
     [SerializeField] GameObject Poke2;
-    [SerializeField] Button Attack1_btn;
-    [SerializeField] Button Attack2_btn;
+
+    //Components
     [SerializeField] PlayerTurn pTurn;
     [SerializeField] EnemyTurn eTurn;
-    [SerializeField] GameObject Menuselect;
-    [SerializeField] GameObject BattleUI;
+    [SerializeField] UIControl UICon;
+
 
     [Header("Turn Controls")]
 
-    [SerializeField] public bool playerGone;
-    [SerializeField] public bool enemyGone;
+    public bool playerGone;
+    public bool enemyGone;
 
+
+    #region UI and Battle setup
+
+    //sets up value of turn controls
     private void Awake()
     {
         playerGone = false;
         enemyGone = false;
+
+     
+
     }
 
+    //passes move pwr to Playerturn & info to UI (is connected to specific attack buttons)
     public void Button1Hit()
     {
         Pokemon1 p1 = Poke1.GetComponent<Pokemon1>();
-        pTurn.pokeName = p1.name;
-        pTurn.pokeMove = p1.Attack1Name;
-        pTurn.pokeMoveType = p1.Attack1Type;
+
+        UICon.p1Move = p1.Attack1Name;
+        UICon.p1MoveType = p1.Attack1Type;
         pTurn.movePwr = p1.Atk1Pwr;
     }
 
+    //passes move pwr to Playerturn & info to UI (is connected to specific attack buttons)
     public void Button2Hit()
     {
         Pokemon1 p1 = Poke1.GetComponent<Pokemon1>();
-        pTurn.pokeName = p1.name;
-        pTurn.pokeMove = p1.Attack2Name;
-        pTurn.pokeMoveType = p1.Attack2Type;
+
+        UICon.p1Move = p1.Attack2Name;
+        UICon.p1MoveType = p1.Attack2Type;
         pTurn.movePwr = p1.Atk2Pwr;
     }
+
+    #endregion
+
+    #region Turn Control
 
     //at start of turn turns off button interaction and compares pokemon's speeds to determine turn order
     public void StartTurn()
     {
         Pokemon1 p1 = Poke1.GetComponent<Pokemon1>();
         Pokemon2 p2 = Poke2.GetComponent<Pokemon2>();
-
-        Attack1_btn.interactable = false;
-        Attack2_btn.interactable = false;
 
         if (p1.speed > p2.speed)
         {
@@ -92,61 +102,96 @@ public class BattleController : MonoBehaviour
     //checks to see if both pokemon have/haven't gone and ends turn or starts respective turn code accordingly
     public void PlayerTurn()
     {
-        if (playerGone && enemyGone)
-        {
-            TurnEnd();
-        }
-        else
-        {
-            playerGone = true;
-            pTurn.StartTurn();
-        }
-
+        //starts player turn
+        playerGone = true;
+        pTurn.StartTurn();
+       
     }
 
     public void EnemyTurn()
     {
         Pokemon2 p2 = Poke2.GetComponent<Pokemon2>();
+
+        //uses random chance to choose enemy pokemon move then passes info...
+        //where it's needed to go
         float chance = Random.Range(1f, 10f);
         if (chance > 3f)
         {
-            eTurn.pokeName = p2.name;
-            eTurn.pokeMove = p2.Attack1Name;
-            eTurn.pokeMoveType = p2.Attack1Type;
+            UICon.p2Move = p2.Attack1Name;
+            UICon.p1MoveType = p2.Attack1Type;
             eTurn.movePwr = p2.Atk1Pwr;
         }
         else
         {
-            eTurn.pokeName = p2.name;
-            eTurn.pokeMove = p2.Attack2Name;
-            eTurn.pokeMoveType = p2.Attack2Type;
+            UICon.p2Move = p2.Attack2Name;
+            UICon.p1MoveType = p2.Attack2Type;
             eTurn.movePwr = p2.Atk2Pwr;
         }
 
-        if (playerGone && enemyGone)
-        {
-            TurnEnd();
-        }
-        else
-        {
-            enemyGone = true;
-            eTurn.StartTurn();
-        }
+        //starts enemy turn
+        enemyGone = true;
+        eTurn.StartTurn();
 
     }
 
     //resets button interaction and values at end of turn
     public void TurnEnd()
     {
-
-        Attack1_btn.interactable = true;
-        Attack2_btn.interactable = true;
-
         enemyGone = false;
         playerGone = false;
 
-        BattleUI.SetActive(false);
-        Menuselect.SetActive(true);
+        UICon.TurnEndUI();
+    }
+
+    #endregion
+
+    public void EndGame()
+    {
+        Pokemon1 p1 = Poke1.GetComponent<Pokemon1>();
+        Pokemon2 p2 = Poke2.GetComponent<Pokemon2>();
+
+        if (p1.currentHP <= 0 && p2.currentHP > 0)
+        {
+            Lose();
+        }
+        if(p2.currentHP <= 0 && p1.currentHP > 0)
+        {
+            Win();
+        }
+
 
     }
+
+    void Win()
+    {
+        UICon.BattletxtManager(3);
+        StartCoroutine(WinTxt());
+    }
+
+    private IEnumerator WinTxt()
+    {
+        yield return new WaitForSeconds(5);
+        UICon.BattletxtManager(4);
+    }
+    void Lose()
+    {
+        UICon.BattletxtManager(5);
+        StartCoroutine(LoseTxt1());
+    }
+
+    private IEnumerator LoseTxt1()
+    {
+        yield return new WaitForSeconds(5);
+        UICon.BattletxtManager(6);
+        StartCoroutine(LoseTxt2());
+    }
+
+    private IEnumerator LoseTxt2()
+    {
+        yield return new WaitForSeconds(5);
+        UICon.BattletxtManager(7);
+ 
+    }
 }
+
+

@@ -1,18 +1,14 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Pokemon2 : MonoBehaviour
 {
-    [Header("Attached GameObjects/Components")]
-
-    [SerializeField] SpriteRenderer renderer;
-
     [Header("Pokemon 2 Info")]
 
     [SerializeField] public string Pokemon2Name = "Evil BunBun";
     [SerializeField] public string Pokemon2Type = "Normal";
-    [SerializeField] Sprite p2_sprite;
 
     [Header("Pokemon 2 Stats")]
 
@@ -36,20 +32,5 @@ public class Pokemon2 : MonoBehaviour
     [SerializeField] public string Attack2Type = "Dark";
     [SerializeField] public float Atk2Pwr = 60;
 
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
-    public void Attack1()
-    {
-
-    }
-    public void Attack2()
-    {
-
-    }
 
 }
