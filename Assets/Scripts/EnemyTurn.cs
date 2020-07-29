@@ -8,9 +8,10 @@ public class EnemyTurn : MonoBehaviour
     [Header("Connected GameObject/Components")]
 
     [SerializeField] BattleController bCon;
-    [SerializeField] UIControl UICon;
+    [SerializeField] UIControl uiCon;
     [SerializeField] GameObject Poke1;
     [SerializeField] GameObject Poke2;
+    [SerializeField] GameObject AnimCon;
 
 
     [Header("Move Values")]
@@ -18,6 +19,7 @@ public class EnemyTurn : MonoBehaviour
     public string pokeMove;
     public string pokeMoveType;
     public float movePwr;
+    public float readTime = 2f;
 
     float tempNum;
     bool healthScroll;
@@ -51,31 +53,63 @@ public class EnemyTurn : MonoBehaviour
     //in order the timed steps of enemy's turn
     private IEnumerator Step1()
     {
+        UIControl UICon = uiCon.GetComponent<UIControl>();
+
         //text call out move used
         UICon.BattletxtManager(2);
 
-        yield return new WaitForSeconds(3);
+        yield return new WaitForSeconds(readTime);
 
         StartCoroutine(Step2());
 
     }
     private IEnumerator Step2()
     {
+        AnimationControl animCon = AnimCon.GetComponent<AnimationControl>();
+
         //attack animation
-        Debug.Log("Attack Animation");
+        if (pokeMove == "Bite")
+        {
+            animCon.Bite();
 
-        yield return new WaitForSeconds(3);
+            yield return new WaitForSeconds(animCon.bite);
 
+            StartCoroutine(DmgGap());
+
+        }
+
+        if(pokeMove == "Scratch")
+        {
+            animCon.Scratch();
+
+            yield return new WaitForSeconds(animCon.scratch);
+
+            StartCoroutine(DmgGap());
+
+        }
+
+
+    }
+
+    private IEnumerator DmgGap()
+    {
+
+        yield return new WaitForSeconds(0.25f);
         StartCoroutine(Step3());
     }
+
     private IEnumerator Step3()
     {
-        //target damage animation & health adjusted
-        Debug.Log("Damage Applied to Player and Player damage Animation");
+        AnimationControl animCon = AnimCon.GetComponent<AnimationControl>();
 
+        //target damage animation & health adjusted
+
+        animCon.Damage(1);
         GiveDamage(movePwr);
 
-        yield return new WaitForSeconds(3);
+
+
+        yield return new WaitForSeconds(animCon.dmg);
 
         StartCoroutine(Step4());
     }
@@ -87,7 +121,7 @@ public class EnemyTurn : MonoBehaviour
 
         Debug.Log("End Enemy Turn");
 
-        yield return new WaitForSeconds(3);
+        yield return new WaitForSeconds(readTime);
 
         healthScroll = false;
         p1.currentHP = tempNum;

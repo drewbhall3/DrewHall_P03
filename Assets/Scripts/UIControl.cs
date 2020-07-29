@@ -2,40 +2,48 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class UIControl : MonoBehaviour
 {
     [Header("Connected GameObjects/Components")]
 
     //GameObjects
-    [SerializeField] Slider p1Slider;
-    [SerializeField] Slider p2Slider;
-    [SerializeField] Text Battletxt;
-    [SerializeField] Text p1Nametxt;
-    [SerializeField] Text p2Nametxt;
-    [SerializeField] Text p1HPcountertxt;
-    [SerializeField] Text p1HPmaxtxt;
+
     [SerializeField] GameObject MenuSelect;
     [SerializeField] GameObject BattleUI;
     [SerializeField] GameObject MoveSelect;
     [SerializeField] GameObject Poke1;
     [SerializeField] GameObject Poke2;
+    [SerializeField] GameObject BCon;
+    [SerializeField] GameObject selectArrow;
+    [SerializeField] GameObject SelectArrowGroup;
+    [SerializeField] GameObject fill1;
+    [SerializeField] GameObject fill2;
+    [SerializeField] GameObject Audio;
+
+    //UI
+
+    [SerializeField] Slider p1Slider;
+    [SerializeField] Slider p2Slider;
+
     [SerializeField] Text Attack1;
     [SerializeField] Text Attack2;
     [SerializeField] Text MenuTxt;
-    [SerializeField] GameObject fill1;
-    [SerializeField] GameObject fill2;
-    [SerializeField] Transform T1;
-    [SerializeField] Transform T2;
-    [SerializeField] Transform T3;
-    [SerializeField] Transform T4;
-    [SerializeField] Transform T5;
-    [SerializeField] Transform T6;
-    [SerializeField] GameObject selectArrow;
-    [SerializeField] GameObject SelectArrowGroup;
+    [SerializeField] Text Battletxt;
+    [SerializeField] Text p1Nametxt;
+    [SerializeField] Text p2Nametxt;
+    [SerializeField] Text p1HPcountertxt;
+    [SerializeField] Text p1HPmaxtxt;
 
     //Components
-    [SerializeField] BattleController bCon;
+
+    [SerializeField] Transform T1;
+    [SerializeField] Transform T5;
+    [SerializeField] Transform T6;
+
+
+
 
     [Header("UI Setup")]
 
@@ -52,6 +60,7 @@ public class UIControl : MonoBehaviour
     string txt;
     string mTxt;
     bool MenufirstEntry;
+    float MoveChoice;
     bool MovefirstEntry;
     bool inputPause;
 
@@ -96,6 +105,9 @@ public class UIControl : MonoBehaviour
     //setup UI elements
     void Update()
     {
+        BattleController bCon = BCon.GetComponent<BattleController>();
+        AudioManager audio = Audio.GetComponent<AudioManager>();
+
         #region Arrow Nav MenuSelect
         if (MenuSelect.activeInHierarchy)
         {
@@ -110,6 +122,7 @@ public class UIControl : MonoBehaviour
             {
                 if (Input.GetKeyDown(KeyCode.E))
                 {
+                    audio.PlayAudio(7);
                     StartCoroutine(InputPause());
                     MoveSelect.SetActive(true);
                     MenuSelect.SetActive(false);
@@ -123,7 +136,17 @@ public class UIControl : MonoBehaviour
         #region Arrow Nav MoveSelect
         if (MoveSelect.activeInHierarchy)
         {
+            if(MoveChoice == 1)
+            {
+                selectArrow.transform.position = T6.position;
+                MoveChoice = 0;
+            }
 
+            if (MoveChoice == 2)
+            {
+                selectArrow.transform.position = T5.position;
+                MoveChoice = 0;
+            }
 
             if (MovefirstEntry)
             {
@@ -133,7 +156,7 @@ public class UIControl : MonoBehaviour
 
             if (inputPause == false)
             {
-                if (Input.GetKeyDown(KeyCode.Escape))
+                if (Input.GetKeyDown(KeyCode.Q))
                 {
                     MenufirstEntry = true;
                     MenuSelect.SetActive(true);
@@ -143,10 +166,13 @@ public class UIControl : MonoBehaviour
                 {
                     if (Input.GetKeyDown(KeyCode.D))
                     {
+                        audio.PlayAudio(7);
                         selectArrow.transform.position = T5.position;
                     }
                     if (Input.GetKeyDown(KeyCode.E))
                     {
+                        MoveChoice = 1;
+                        audio.PlayAudio(7);
                         SelectArrowGroup.SetActive(false);
                         BattleUI.SetActive(true);
                         MoveSelect.SetActive(false);
@@ -158,10 +184,13 @@ public class UIControl : MonoBehaviour
                 {
                     if (Input.GetKeyDown(KeyCode.A))
                     {
+                        audio.PlayAudio(7);
                         selectArrow.transform.position = T6.position;
                     }
                     if (Input.GetKeyDown(KeyCode.E))
                     {
+                        MoveChoice = 2;
+                        audio.PlayAudio(7);
                         SelectArrowGroup.SetActive(false);
                         BattleUI.SetActive(true);
                         MoveSelect.SetActive(false);
@@ -174,16 +203,34 @@ public class UIControl : MonoBehaviour
         }
         #endregion
 
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            Application.Quit();
+        }
+        if (Input.GetKeyDown(KeyCode.Backspace))
+        {
+            SceneManager.LoadScene("Battle Scene");
+        }
+
         //updates player health counter to match slider values
         Pokemon1 p1 = Poke1.GetComponent<Pokemon1>();
         Pokemon2 p2 = Poke2.GetComponent<Pokemon2>();
 
         float tempNum = Mathf.Round(p1.currentHP);
 
-        p1HPcountertxt.text = tempNum.ToString();
+        if (tempNum >= 0)
+        {
+            p1HPcountertxt.text = tempNum.ToString();
+        }
+        else
+        {
+            p1HPcountertxt.text = "0";
+        }
 
         p1Slider.value = p1.currentHP;
         p2Slider.value = p2.currentHP;
+
+        #region HpSlider Color Change
 
         Image f1 = fill1.GetComponent<Image>();
         Image f2 = fill2.GetComponent<Image>();
@@ -217,6 +264,8 @@ public class UIControl : MonoBehaviour
         {
             f2.color = Color.gray;
         }
+
+        #endregion
     }
 
     private IEnumerator InputPause()
@@ -283,6 +332,7 @@ public class UIControl : MonoBehaviour
         {
             Battletxt.text += letter;
             yield return null;
+
         }
 
     }
@@ -302,7 +352,6 @@ public class UIControl : MonoBehaviour
 
     public void TurnEndUI()
     {
-        MovefirstEntry = true;
         MenufirstEntry = true;
         BattleUI.SetActive(false);
         MenuSelect.SetActive(true);

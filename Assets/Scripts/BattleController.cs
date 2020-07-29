@@ -9,11 +9,12 @@ public class BattleController : MonoBehaviour
     //GameObjects
     [SerializeField] GameObject Poke1;
     [SerializeField] GameObject Poke2;
+    [SerializeField] GameObject uiCon;
+    [SerializeField] GameObject animCon;
 
     //Components
     [SerializeField] PlayerTurn pTurn;
     [SerializeField] EnemyTurn eTurn;
-    [SerializeField] UIControl UICon;
 
 
     [Header("Turn Controls")]
@@ -38,8 +39,10 @@ public class BattleController : MonoBehaviour
     public void Button1Hit()
     {
         Pokemon1 p1 = Poke1.GetComponent<Pokemon1>();
+        UIControl UICon = uiCon.GetComponent<UIControl>();
 
         UICon.p1Move = p1.Attack1Name;
+        pTurn.pokeMove = p1.Attack1Name;
         UICon.p1MoveType = p1.Attack1Type;
         pTurn.movePwr = p1.Atk1Pwr;
     }
@@ -48,8 +51,10 @@ public class BattleController : MonoBehaviour
     public void Button2Hit()
     {
         Pokemon1 p1 = Poke1.GetComponent<Pokemon1>();
+        UIControl UICon = uiCon.GetComponent<UIControl>();
 
         UICon.p1Move = p1.Attack2Name;
+        pTurn.pokeMove = p1.Attack2Name;
         UICon.p1MoveType = p1.Attack2Type;
         pTurn.movePwr = p1.Atk2Pwr;
     }
@@ -111,6 +116,7 @@ public class BattleController : MonoBehaviour
     public void EnemyTurn()
     {
         Pokemon2 p2 = Poke2.GetComponent<Pokemon2>();
+        UIControl UICon = uiCon.GetComponent<UIControl>();
 
         //uses random chance to choose enemy pokemon move then passes info...
         //where it's needed to go
@@ -118,12 +124,14 @@ public class BattleController : MonoBehaviour
         if (chance > 3f)
         {
             UICon.p2Move = p2.Attack1Name;
+            eTurn.pokeMove = p2.Attack1Name;
             UICon.p1MoveType = p2.Attack1Type;
             eTurn.movePwr = p2.Atk1Pwr;
         }
         else
         {
             UICon.p2Move = p2.Attack2Name;
+            eTurn.pokeMove = p2.Attack2Name;
             UICon.p1MoveType = p2.Attack2Type;
             eTurn.movePwr = p2.Atk2Pwr;
         }
@@ -137,6 +145,8 @@ public class BattleController : MonoBehaviour
     //resets button interaction and values at end of turn
     public void TurnEnd()
     {
+        UIControl UICon = uiCon.GetComponent<UIControl>();
+
         enemyGone = false;
         playerGone = false;
 
@@ -149,13 +159,16 @@ public class BattleController : MonoBehaviour
     {
         Pokemon1 p1 = Poke1.GetComponent<Pokemon1>();
         Pokemon2 p2 = Poke2.GetComponent<Pokemon2>();
+        AnimationControl AnimCon = animCon.GetComponent<AnimationControl>();
 
         if (p1.currentHP <= 0 && p2.currentHP > 0)
         {
+            AnimCon.Faint(1);
             Lose();
         }
         if(p2.currentHP <= 0 && p1.currentHP > 0)
         {
+            AnimCon.Faint(2);
             Win();
         }
 
@@ -164,31 +177,42 @@ public class BattleController : MonoBehaviour
 
     void Win()
     {
+        UIControl UICon = uiCon.GetComponent<UIControl>();
+
         UICon.BattletxtManager(3);
+
         StartCoroutine(WinTxt());
     }
 
     private IEnumerator WinTxt()
     {
-        yield return new WaitForSeconds(5);
+        UIControl UICon = uiCon.GetComponent<UIControl>();
+
+        yield return new WaitForSeconds(2);
         UICon.BattletxtManager(4);
     }
     void Lose()
     {
+        UIControl UICon = uiCon.GetComponent<UIControl>();
+
         UICon.BattletxtManager(5);
         StartCoroutine(LoseTxt1());
     }
 
     private IEnumerator LoseTxt1()
     {
-        yield return new WaitForSeconds(5);
+        UIControl UICon = uiCon.GetComponent<UIControl>();
+
+        yield return new WaitForSeconds(2);
         UICon.BattletxtManager(6);
         StartCoroutine(LoseTxt2());
     }
 
     private IEnumerator LoseTxt2()
     {
-        yield return new WaitForSeconds(5);
+        UIControl UICon = uiCon.GetComponent<UIControl>();
+
+        yield return new WaitForSeconds(2);
         UICon.BattletxtManager(7);
  
     }

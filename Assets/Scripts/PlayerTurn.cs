@@ -8,14 +8,16 @@ public class PlayerTurn : MonoBehaviour
     [Header("Connected GameObject/Components")]
 
     [SerializeField] BattleController bCon;
-    [SerializeField] UIControl UICon;
+    [SerializeField] GameObject uiCon;
     [SerializeField] GameObject Poke1;
     [SerializeField] GameObject Poke2;
+    [SerializeField] GameObject AnimCon;
 
     public string pokeName;
     public string pokeMove;
     public string pokeMoveType;
     public float movePwr;
+    public float readTime = 2f;
 
     float tempNum;
     bool healthScroll;
@@ -47,29 +49,55 @@ public class PlayerTurn : MonoBehaviour
     //in order the timed steps of enemy's turn
     private IEnumerator Step1()
     {
+        UIControl UICon = uiCon.GetComponent<UIControl>();
+
         //text call out move used
         UICon.BattletxtManager(1);
 
-        yield return new WaitForSeconds(3);
+        yield return new WaitForSeconds(readTime);
 
         StartCoroutine(Step2());
 
     }
     private IEnumerator Step2()
     {
+        AnimationControl animCon = AnimCon.GetComponent<AnimationControl>();
+
         //attack animation
-        Debug.Log("Attack Animation");
+        if(pokeMove == "Thunder Shock")
+        {
+            animCon.Thundershock();
 
-        yield return new WaitForSeconds(3);
+            yield return new WaitForSeconds(animCon.thunder);
+            StartCoroutine(DmgGap());
+        }
 
+        if(pokeMove == "Tackle")
+        {
+            animCon.Tackle();
+            yield return new WaitForSeconds(animCon.tackle);
+            StartCoroutine(DmgGap());
+        }
+
+        
+    }
+
+    private IEnumerator DmgGap()
+    {
+
+        yield return new WaitForSeconds(0.25f);
         StartCoroutine(Step3());
     }
+
     private IEnumerator Step3()
     {
+        AnimationControl animCon = AnimCon.GetComponent<AnimationControl>();
         //target damage animation & health adjusted
-        Debug.Log("Damage Applied to enemy and enemy damage Animation");
+
+        animCon.Damage(2);
         GiveDamage(movePwr);
-        yield return new WaitForSeconds(3);
+
+        yield return new WaitForSeconds(animCon.dmg);
 
         StartCoroutine(Step4());
     }
@@ -81,7 +109,7 @@ public class PlayerTurn : MonoBehaviour
         Pokemon2 p2 = Poke2.GetComponent<Pokemon2>();
 
         Debug.Log("End Player Turn");
-        yield return new WaitForSeconds(3);
+        yield return new WaitForSeconds(readTime);
 
         healthScroll = false;
         p2.currentHP = tempNum;
